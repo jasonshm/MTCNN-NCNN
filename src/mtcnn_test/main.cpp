@@ -4,7 +4,7 @@
 
 using namespace cv;
 
-#define MAXFACEOPEN 0 //�����Ƿ񿪹�����������ԣ�1Ϊ��������Ϊ��
+#define MAXFACEOPEN 0
 
 double get_current_time()
 {
@@ -132,7 +132,7 @@ int test_picture(){
   return 0;
 }
 
-int main(int argc, char** argv) {
+int main1(int argc, char** argv) {
 	
 	//test_video();
 	test_picture();

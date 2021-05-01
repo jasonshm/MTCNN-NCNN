@@ -1,0 +1,7 @@
+[requires]
+cv22_linux_sdk/3.0.1@udp/development
+ffmpeg/4.1.1@vca/development
+vca-core-embedded-sdk/1.3.2@udp/development
+
+[generators]
+cmake

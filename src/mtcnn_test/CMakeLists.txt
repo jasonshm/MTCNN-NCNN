@@ -1,4 +1,19 @@
-aux_source_directory(. srcs)
+#
+# Copyright © 2020 by UDP Technology Ltd.
+#
+# All rights reserved. Property of UDP Technology Ltd. Restricted rights to use,
+# duplicate or disclose this code are granted through contract.
+#
+
+SET(TARGET_NAME mtcnn_test)
+
+
+#
+# Conan
+#
+
+include(${CMAKE_BINARY_DIR}/conanbuildinfo.cmake)
+conan_basic_setup()
 
 FIND_PACKAGE( OpenMP REQUIRED)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")  
@@ -23,8 +38,30 @@ find_library(PNG png ${SDK30_ARMV8_DIR}/libpng/usr/lib)
 find_library(PROTOBUF protobuf ${SDK30_ARMV8_DIR}/protobuf/usr/lib)
 find_library(Z z ${SDK30_ARMV8_DIR}/zlib/usr/lib)
 
-include_directories(${PROJECT_SOURCE_DIR}/include )
-include_directories(${PROJECT_SOURCE_DIR}/include/ncnn )
+#
+# Options
+#
+
+option(WITH_FFMPEG "Build with ffmpeg" TRUE)
+
+find_package(PkgConfig)
+if(WITH_FFMPEG)
+#  pkg_check_modules(FFMPEG REQUIRED libavcodec libavformat libavutil libswscale)
+endif()
+
+include_directories(
+  ${PROJECT_SOURCE_DIR}/include 
+  ${PROJECT_SOURCE_DIR}/include/ncnn
+)
+
+if(WITH_FFMPEG)
+  set(FFMPEG_SOURCES
+    ffmpeg_common.cpp
+    ffmpeg_input.cpp
+  )
+  add_compile_definitions(WITH_FFMPEG)
+endif()
+
 link_directories(${PROJECT_SOURCE_DIR}/lib)
 
 link_libraries(
@@ -41,9 +78,25 @@ link_libraries(
 
 set(EXECUTABLE_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/bin)
 
-add_executable(mtcnn_test ${srcs})
+set(
+  SOURCES
+  example_face.cpp
+  stream_output.cpp
+  subprocess_output.cpp
+  test_input.cpp
+  video_input.cpp
+  video_output.cpp
+  ${FFMPEG_SOURCES}
+)
 
-target_link_libraries(mtcnn_test mtcnn)
-#target_link_libraries( mtcnn_test opencv_imgproc opencv_core opencv_highgui)
-target_link_libraries( mtcnn_test ${OPENCV_CORE} ${OPENCV_IMGPROC} ${OPENCV_HIGHGUI} m)
+add_executable(${TARGET_NAME} ${SOURCES})
+
+target_link_libraries(${TARGET_NAME}
+  ${CONAN_LIBS}
+  m
+  mtcnn
+  ${OPENCV_CORE}
+  ${OPENCV_HIGHGUI}
+  ${OPENCV_IMGPROC}
+)
 

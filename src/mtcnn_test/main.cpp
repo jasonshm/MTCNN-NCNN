@@ -4,7 +4,7 @@
 
 using namespace cv;
 
-#define MAXFACEOPEN 0 //ÉèÖÃÊÇ·ñ¿ª¹Ø×î´óÈËÁ³µ÷ÊÔ£¬1Îª¿ª£¬ÆäËüÎª¹Ø
+#define MAXFACEOPEN 0 //ï¿½ï¿½ï¿½ï¿½ï¿½Ç·ñ¿ª¹ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ô£ï¿½1Îªï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Îªï¿½ï¿½
 
 double get_current_time()
 {
@@ -19,7 +19,7 @@ double get_current_time()
 
 
 void test_video() {
-	char *model_path = "../models";
+	const char *model_path = "../models";
 	MTCNN mtcnn(model_path);
 	mtcnn.SetMinFace(40);
 	cv::VideoCapture mVideoCapture(0);
@@ -72,28 +72,36 @@ void test_video() {
 }
 
 int test_picture(){
-	char *model_path = "../models";
+	const char *model_path = "../models";
 	MTCNN mtcnn(model_path);
 
 	clock_t start_time = clock();
-	
-	
-	
+		
 	cv::Mat image;
-	image = cv::imread("../sample.jpg");
-	ncnn::Mat ncnn_img = ncnn::Mat::from_pixels(image.data, ncnn::Mat::PIXEL_BGR2RGB, image.cols, image.rows);
-	std::vector<Bbox> finalBbox;
-	
-	double begin = get_current_time();
-	
-#if(MAXFACEOPEN==1)
-	mtcnn.detectMaxFace(ncnn_img, finalBbox);
-#else
-	mtcnn.detect(ncnn_img, finalBbox);
-#endif
-	double end = get_current_time();
-	
-	std::cout<<"detect cost:"<< end - begin<< std::endl;
+  std::vector<Bbox> finalBbox;
+  std::string image_filenames[] = {"../sample.jpg", "../sample_640.jpg", 
+                                   "../Family-Monsters-Picnic-fun-at-Queen-Elizabeth-Olympic-Park-istock.jpg",
+                                   "../Family-Monsters-Picnic-fun-at-Queen-Elizabeth-Olympic-Park-istock_320.jpg",
+                                   "../family-having-picnic-nature_23-2148199376.jpg",
+                                   "../family-having-picnic-nature_23-2148199376_320.jpg"};
+  std::vector<std::string> filenames(image_filenames, std::end(image_filenames));
+
+  for (const auto& filename : filenames) {
+    image = cv::imread(filename);
+    
+    ncnn::Mat ncnn_img = ncnn::Mat::from_pixels(image.data, ncnn::Mat::PIXEL_BGR2RGB, image.cols, image.rows);
+
+    double begin = get_current_time();
+    
+  #if(MAXFACEOPEN==1)
+    mtcnn.detectMaxFace(ncnn_img, finalBbox);
+  #else
+    mtcnn.detect(ncnn_img, finalBbox);
+  #endif
+    double end = get_current_time();
+    
+    std::cout << filename << " " << image.cols << "x" << image.rows << " took: " << end - begin << "ms" << std::endl;
+  }
 
 	const int num_box = finalBbox.size();
 	std::vector<cv::Rect> bbox;
@@ -109,7 +117,7 @@ int test_picture(){
 	}
 	
 	for (vector<cv::Rect>::iterator it = bbox.begin(); it != bbox.end(); it++) {
-		rectangle(image, (*it), Scalar(0, 0, 255), 2, 8, 0);
+		cv::rectangle(image, (*it), Scalar(0, 0, 255), 2, 8, 0);
 	}
 
 	//imshow("face_detection", image);
@@ -119,8 +127,9 @@ int test_picture(){
 	double total_time = (double)(finish_time - start_time) / CLOCKS_PER_SEC;
 	std::cout << "time" << total_time * 1000 << "ms" << std::endl;
 
-	cv::waitKey(0);
+	// cv::waitKey(0);
 
+  return 0;
 }
 
 int main(int argc, char** argv) {

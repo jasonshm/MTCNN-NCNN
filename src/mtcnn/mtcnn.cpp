@@ -6,6 +6,7 @@
  * TO DO : change the P-net and update the generat box
  */
 
+#include <cmath>
 #include "mtcnn.h"
 
 bool cmpScore(Bbox lsh, Bbox rsh) {

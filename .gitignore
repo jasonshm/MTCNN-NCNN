@@ -1,0 +1,8 @@
+#Build directories
+build/
+bin/
+lib/
+
+# images
+*.jpg
+
